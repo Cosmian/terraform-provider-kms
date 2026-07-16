@@ -1,0 +1,57 @@
+---
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go build ./...
+      - run: go vet ./...
+
+  acceptance:
+    runs-on: ubuntu-latest
+    needs: build
+    # Acceptance tests start a local KMS (SQLite, no auth) and run real KMIP calls.
+    # They require Docker to pull the cosmian/kms image.
+    env:
+      TF_ACC: '1'
+      COSMIAN_KMS_SERVER_URL: http://localhost:9998
+    strategy:
+      matrix:
+        kms_variant: [fips, non-fips]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Start KMS server (${{ matrix.kms_variant }})
+        run: |
+          docker run -d --name kms \
+            -p 9998:9998 \
+            -e KMS_DATABASE_TYPE=sqlite \
+            -e KMS_SQLITE_PATH=/tmp/kms-data \
+            cosmian/kms:latest
+          # Wait for KMS to be ready
+          timeout 30 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 1; done || true'
+
+      - name: Run acceptance tests
+        run: go test -v -timeout 120s ./internal/...
+
+      - name: Stop KMS server
+        if: always()
+        run: docker rm -f kms || true
