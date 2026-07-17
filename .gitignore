@@ -1,0 +1,11 @@
+# compiled binary (local dev builds)
+terraform-provider-kms
+
+# GoReleaser dist output
+dist/
+
+# Terraform/OpenTofu local state
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
