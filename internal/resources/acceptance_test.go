@@ -19,7 +19,7 @@ import (
 
 // testProviderFactories is used by all acceptance tests.
 var testProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"cosmian-kms": providerserver.NewProtocol6WithError(kmsProvider.New("test")()),
+	"kms": providerserver.NewProtocol6WithError(kmsProvider.New("test")()),
 }
 
 // testClient returns a KMS client pointed at the acceptance test server.
@@ -51,7 +51,7 @@ func providerConfig() string {
 		serverURL = "http://localhost:9998"
 	}
 	return fmt.Sprintf(`
-provider "cosmian-kms" {
+provider "kms" {
   server_url = %q
 }
 `, serverURL)
