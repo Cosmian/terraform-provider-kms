@@ -44,7 +44,7 @@ func New(version string) func() provider.Provider {
 
 // Metadata returns the provider type name and version.
 func (p *KMSProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "cosmian-kms"
+	resp.TypeName = "kms"
 	resp.Version = p.version
 }
 

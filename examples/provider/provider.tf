@@ -1,13 +1,13 @@
 terraform {
   required_providers {
-    cosmian-kms = {
+    kms = {
       source  = "cosmian/kms"
       version = "~> 0.1"
     }
   }
 }
 
-provider "cosmian-kms" {
+provider "kms" {
   server_url = "https://kms.example.com:9998"
   api_key    = var.kms_api_key # or set COSMIAN_KMS_API_KEY env var
 

@@ -30,18 +30,18 @@ provider "cosmian-kms" {
 
 | Resource | Description |
 |----------|-------------|
-| `cosmian_kms_symmetric_key` | AES symmetric key (KMIP Create / Destroy) |
-| `cosmian_kms_key_pair` | RSA / EC key pair (KMIP CreateKeyPair / Destroy) |
-| `cosmian_kms_certificate` | X.509 certificate (KMIP Certify / Destroy) |
-| `cosmian_kms_access_right` | Grant a user access to a KMS object |
+| `kms_symmetric_key` | AES symmetric key (KMIP Create / Destroy) |
+| `kms_key_pair` | RSA / EC key pair (KMIP CreateKeyPair / Destroy) |
+| `kms_certificate` | X.509 certificate (KMIP Certify / Destroy) |
+| `kms_access_right` | Grant a user access to a KMS object |
 
 ## Data Sources
 
 | Data Source | Description |
 |-------------|-------------|
-| `data.cosmian_kms_symmetric_key` | Read a symmetric key by UID |
-| `data.cosmian_kms_key_pair` | Read a key pair by private/public UIDs |
-| `data.cosmian_kms_access_list` | List all access rights on a KMS object |
+| `data.kms_symmetric_key` | Read a symmetric key by UID |
+| `data.kms_key_pair` | Read a key pair by private/public UIDs |
+| `data.kms_access_list` | List all access rights on a KMS object |
 
 ## Local Development
 
