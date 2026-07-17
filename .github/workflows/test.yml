@@ -51,12 +51,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull KMS image (${{ matrix.kms_variant }})
+        run: docker pull ${{ matrix.kms_image }}
+
       - name: Start KMS server (${{ matrix.kms_variant }})
         run: |
           docker run -d --name kms \
             -p 9998:9998 \
             ${{ matrix.kms_image }}
-          # Wait for KMS to be ready (fail if not up within 60s)
+          # Wait for KMS to be ready — image already pulled, so 60s is for startup only
           timeout 60 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 2; done'
 
       - name: Run acceptance tests
