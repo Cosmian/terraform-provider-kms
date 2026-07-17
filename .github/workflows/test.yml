@@ -60,7 +60,8 @@ jobs:
             -p 9998:9998 \
             ${{ matrix.kms_image }}
           # Wait for KMS to be ready — image already pulled, so 60s is for startup only
-          timeout 60 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 2; done'
+          # KMS returns HTTP 422 on empty KMIP request (not 200) — use -s not -sf
+          timeout 60 bash -c 'until curl -s http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 2; done'
 
       - name: Run acceptance tests
         run: go test -v -timeout 120s ./internal/...
