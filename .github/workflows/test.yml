@@ -31,7 +31,11 @@ jobs:
       COSMIAN_KMS_SERVER_URL: http://localhost:9998
     strategy:
       matrix:
-        kms_variant: [fips, non-fips]
+        include:
+          - kms_variant: fips
+            kms_image: ghcr.io/cosmian/kms-fips:latest
+          - kms_variant: non-fips
+            kms_image: ghcr.io/cosmian/kms:latest
     steps:
       - uses: actions/checkout@v4
 
@@ -43,9 +47,7 @@ jobs:
         run: |
           docker run -d --name kms \
             -p 9998:9998 \
-            -e KMS_DATABASE_TYPE=sqlite \
-            -e KMS_SQLITE_PATH=/tmp/kms-data \
-            cosmian/kms:latest
+            ${{ matrix.kms_image }}
           # Wait for KMS to be ready
           timeout 30 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 1; done || true'
 
