@@ -30,6 +30,7 @@ jobs:
       TF_ACC: '1'
       COSMIAN_KMS_SERVER_URL: http://localhost:9998
     strategy:
+      fail-fast: false
       matrix:
         include:
           - kms_variant: fips
@@ -43,13 +44,20 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Start KMS server (${{ matrix.kms_variant }})
         run: |
           docker run -d --name kms \
             -p 9998:9998 \
             ${{ matrix.kms_image }}
-          # Wait for KMS to be ready
-          timeout 30 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 1; done || true'
+          # Wait for KMS to be ready (fail if not up within 60s)
+          timeout 60 bash -c 'until curl -sf http://localhost:9998/kmip/2_1 -X POST -H "Content-Type: application/json" -d "{}" 2>/dev/null | grep -q .; do sleep 2; done'
 
       - name: Run acceptance tests
         run: go test -v -timeout 120s ./internal/...
